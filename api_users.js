@@ -3,36 +3,41 @@
 //
 // Return all the users from the database:
 //
-const photoapp_db = require('./photoapp_db.js')
+const photoapp_db = require('./photoapp_db.js');
 
+function query_database(db, sql) {
+  return new Promise((resolve, reject) => {
+    db.query(sql, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+//
+// get /users:
+//
 exports.get_users = async (req, res) => {
-
   console.log("**Call to get /users...");
 
   try {
+    const sql = 'SELECT * FROM users';
+    const users = await query_database(photoapp_db, sql);
 
-    
-    throw new Error("TODO: /users");
-
-    //
-    // TODO: remember we did an example similar to this in class with
-    // movielens database
-    //
-    // MySQL in JS:
-    //   https://expressjs.com/en/guide/database-integration.html#mysql
-    //   https://github.com/mysqljs/mysql
-    //
-    
-
-  }//try
-  catch (err) {
+    res.json({
+      "message": "success",
+      "data": users
+    });
+  } catch (err) {
     console.log("**Error in /users");
     console.log(err.message);
-    
+
     res.status(500).json({
       "message": err.message,
       "data": []
     });
-  }//catch
-
-}//get
+  }
+};
