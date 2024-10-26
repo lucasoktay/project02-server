@@ -4,7 +4,7 @@
 // simple photo application for photo storage and viewing.
 //
 // Authors:
-//  YOUR NAME
+//  Lucas Oktay
 //  Prof. Joe Hummel (initial template)
 //  Northwestern University
 //
@@ -31,30 +31,20 @@ const photoapp_db = require('./photoapp_db.js')
 const { HeadBucketCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 const { photoapp_s3, s3_bucket_name, s3_region_name } = require('./photoapp_s3.js');
 
-// support larger image uploads/downloads:
 app.use(express.json({ strict: false, limit: "50mb" }));
 
 var startTime;
 
-//
-// main():
-//
 app.listen(config.service_port, () => {
   startTime = Date.now();
   console.log('**Web service running, listening on port', config.service_port);
-  //
-  // Configure AWS to use our config file:
-  //
   process.env.AWS_SHARED_CREDENTIALS_FILE = config.photoapp_config;
 });
 
-//
-// request for default page /
-//
 app.get('/', (req, res) => {
   try {
     console.log("**Call to /...");
-    
+
     let uptime = Math.round((Date.now() - startTime) / 1000);
 
     res.json({
@@ -63,7 +53,7 @@ app.get('/', (req, res) => {
       "dbConnection": photoapp_db.state
     });
   }
-  catch(err) {
+  catch (err) {
     console.log("**Error in /");
     console.log(err.message);
 
@@ -71,9 +61,6 @@ app.get('/', (req, res) => {
   }
 });
 
-//
-// web service functions (API):
-//
 let stats = require('./api_stats.js');
 let users = require('./api_users.js');
 let assets = require('./api_assets.js');
@@ -82,10 +69,10 @@ let download = require('./api_image_get.js');
 let user = require('./api_user.js');
 let upload = require('./api_image_post.js');
 
-app.get('/stats', stats.get_stats);  
-app.get('/users', users.get_users);  
-app.get('/assets', assets.get_assets);  
-app.get('/bucket', bucket.get_bucket);  
+app.get('/stats', stats.get_stats);
+app.get('/users', users.get_users);
+app.get('/assets', assets.get_assets);
+app.get('/bucket', bucket.get_bucket);
 app.get('/image/:assetid', download.get_image);
 
 app.put('/user', user.put_user);

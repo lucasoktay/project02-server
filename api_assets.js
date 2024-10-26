@@ -1,8 +1,3 @@
-//
-// app.get('/assets', async (req, res) => {...});
-//
-// Return all the assets from the database:
-//
 const photoapp_db = require('./photoapp_db.js');
 
 function query_database(db, sql) {
@@ -17,9 +12,6 @@ function query_database(db, sql) {
   });
 }
 
-//
-// get /assets:
-//
 exports.get_assets = async (req, res) => {
   console.log("**Call to get /assets...");
 

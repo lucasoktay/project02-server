@@ -1,8 +1,3 @@
-//
-// app.get('/users', async (req, res) => {...});
-//
-// Return all the users from the database:
-//
 const photoapp_db = require('./photoapp_db.js');
 
 function query_database(db, sql) {
@@ -17,9 +12,6 @@ function query_database(db, sql) {
   });
 }
 
-//
-// get /users:
-//
 exports.get_users = async (req, res) => {
   console.log("**Call to get /users...");
 
