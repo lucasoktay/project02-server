@@ -4,8 +4,29 @@ exports.put_user = async (req, res) => {
   console.log("**Call to put /user...");
 
   try {
-    let data = req;
+    let data = req.body;
     console.log("**Received data:", data);
+
+    // Basic validation
+    if (!data.email || !data.firstname || !data.lastname || !data.bucketfolder) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    if (typeof data.email !== 'string' || !data.email.includes('@')) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    if (typeof data.firstname !== 'string' || data.firstname.length < 1 || data.firstname.length > 100) {
+      return res.status(400).json({ error: "Invalid firstname" });
+    }
+
+    if (typeof data.lastname !== 'string' || data.lastname.length < 1 || data.lastname.length > 100) {
+      return res.status(400).json({ error: "Invalid lastname" });
+    }
+
+    if (typeof data.bucketfolder !== 'string' || data.bucketfolder.length < 1 || data.bucketfolder.length > 255) {
+      return res.status(400).json({ error: "Invalid bucketfolder" });
+    }
 
     let sql = `SELECT userid FROM users WHERE email = ?`;
     let results = await query_database(photoapp_db, sql, [data.email]);
@@ -20,12 +41,13 @@ exports.put_user = async (req, res) => {
       if (updateResult.affectedRows == 1) {
         res.json({
           "message": "updated",
-          "userid": userid
+          "userid": userid,
         });
       } else {
-        throw new Error("Failed to update user");
+        res.status(500).json({ error: "Failed to update user" });
       }
     } else {
+      // Insert new user if not found
       sql = `INSERT INTO users (email, firstname, lastname, bucketfolder) VALUES (?, ?, ?, ?)`;
       let insertResult = await query_database(photoapp_db, sql, [data.email, data.firstname, data.lastname, data.bucketfolder]);
       console.log("**Insert result:", insertResult);
@@ -33,22 +55,29 @@ exports.put_user = async (req, res) => {
       if (insertResult.affectedRows == 1) {
         res.json({
           "message": "inserted",
-          "userid": insertResult.insertId
+          "userid": insertResult.insertId,
         });
       } else {
-        throw new Error("Failed to insert user");
+        res.status(500).json({ error: "Failed to insert user" });
       }
     }
   } catch (err) {
-    console.log("**Error in /user");
-    console.log(err.message);
-
-    res.status(500).json({
-      "message": data,
-      "userid": -1
-    });
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
+
+function query_database(db, sql, params) {
+  return new Promise((resolve, reject) => {
+    db.query(sql, params, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
 
 function query_database(db, sql, params) {
   return new Promise((resolve, reject) => {
